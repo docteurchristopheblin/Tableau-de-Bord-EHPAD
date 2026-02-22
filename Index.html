@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard – Suivi OK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-color:#0f172a;
+    --text-color:#e2e8f0;
+    --muted-color:#94a3b8;
+    --card-bg:rgba(30,41,59,.8);
+    --card-border:rgba(148,163,184,.15);
+    --success-color:#10b981;
+    --warning-color:#f59e0b;
+    --danger-color:#ef4444;
+    --danger-bg-muted:rgba(239,68,68,.2);
+    --success-bg-muted:rgba(16,185,129,.2);
+  }
+
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg-color);
+    color:var(--text-color);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1200px;margin:auto;padding:24px 16px;}
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;letter-spacing:-.5px;}
+  .muted{color:var(--muted-color);font-size:14px;}
+
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+
+  #globalStatus{
+    font-weight:600;
+    padding:14px 14px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    flex:1;
+    min-width:260px;
+  }
+
+  .btn{
+    appearance:none;
+    border:1px solid rgba(148,163,184,.35);
+    background:rgba(30,41,59,.65);
+    color:var(--text-color);
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:800;
+    cursor:pointer;
+    transition:transform .08s ease, border-color .15s ease, background .15s ease;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:hover{border-color:rgba(148,163,184,.55); background:rgba(30,41,59,.85);}
+  .btn:active{transform:translateY(1px);}
+  .btn small{
+    display:block;
+    color:var(--muted-color);
+    font-weight:600;
+    margin-top:2px;
+  }
+
+  .err{
+    background:var(--danger-bg-muted);
+    border:1px solid var(--danger-color);
+    color:#fecaca;
+    padding:12px 16px;
+    border-radius:8px;
+    margin-top:16px;
+    font-size:14px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    word-break:break-word;
+  }
+  .err::before{content:'⚠️';font-size:18px;line-height:1.1;}
+
+  .siteBlock{margin-top:28px;}
+  .siteRow{
+    display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+    margin-top:18px;padding-bottom:8px;border-bottom:1px solid var(--card-border);
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:999px;padding:6px 14px;
+    background:var(--success-bg-muted);color:var(--success-color);
+    border:1px solid var(--success-color);
+    font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
+  .siteStatus{margin-top:10px;font-size:14px;font-style:italic;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:16px;
+    margin-top:16px;
+  }
+
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    box-shadow:0 4px 6px -1px rgba(0,0,0,.2);
+  }
+
+  .month{font-weight:900;font-size:16px;margin-bottom:10px;}
+  .pctline{font-size:13px;color:var(--muted-color);margin-top:10px;font-weight:700;}
+
+  .barWrap{
+    height:12px;
+    background:rgba(239,68,68,.2);
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:12px;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.2);
+  }
+  .bar{height:100%;border-radius:999px;width:0;transition:width .8s ease-out;}
+
+  /* iOS/Safari friendly: pas de rotation CSS du SVG */
+  .chart-svg{display:block;margin:0 auto;}
+  .chart-circle-bg{fill:none;stroke:rgba(239,68,68,.25);stroke-width:12;}
+  .chart-circle-fg{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .8s ease-out;}
+  .chart-text{font-size:26px;font-weight:900;text-anchor:middle;}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <h1>Dashboard – Suivi OK (Pharmacie)</h1>
+  <div class="muted">Vue par défaut : M-3 → M+1. Bouton pour basculer sur tous les mois.</div>
+
+  <div class="topbar">
+    <div id="globalStatus">Chargement…</div>
+    <button id="toggleViewBtn" class="btn" type="button">
+      Voir tous les mois
+      <small id="toggleViewHint">Affiche toutes les colonnes (sans filtre)</small>
+    </button>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Nogent</span>
+      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
+    </div>
+    <div id="statusNogent" class="siteStatus muted"></div>
+    <div id="gridNogent" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Pontpoint</span>
+      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
+    </div>
+    <div id="statusPontpoint" class="siteStatus muted"></div>
+    <div id="gridPontpoint" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Chamant</span>
+      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
+    </div>
+    <div id="statusChamant" class="siteStatus muted"></div>
+    <div id="gridChamant" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>La Forêt</span>
+      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
+    </div>
+    <div id="statusLaforet" class="siteStatus muted"></div>
+    <div id="gridLaforet" class="grid"></div>
+  </div>
+</div>
+
+<script>
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbworFCiwn7kdqF-eoDbwxMvYVwLUunVAjhy7NYZtwnA2plfTbAJD8AB8MeQoVHY4Wfq/exec";
+
+  const NOGENT = {
+    name: "Nogent",
+    sheetId: "1eeRp1V9upw967UPEPyf8qJiSa4dwC0ULLoFuojl7nyc",
+    gid: "0",
+    startCol: 14, labelRow: 1, valueRow: 4,
+    statusEl: document.getElementById("statusNogent"),
+    gridEl: document.getElementById("gridNogent"),
+    callback: "handleNogent"
+  };
+
+  const PONTPOINT = {
+    name: "Pontpoint",
+    sheetId: "1GR19n7z3cx5oj9HTY18IqvmT0J7AHT4OUMhItX-xhbo",
+    gid: "0",
+    startCol: 14, labelRow: 1, valueRow: 4,
+    statusEl: document.getElementById("statusPontpoint"),
+    gridEl: document.getElementById("gridPontpoint"),
+    callback: "handlePontpoint"
+  };
+
+  const CHAMANT = {
+    name: "Chamant",
+    sheetId: "1pDLA7POdZA3EOUE-Mpp7hDGlDS3ALszI6RL11G9TA5k",
+    gid: "626296930",
+    startCol: 14, labelRow: 1, valueRow: 4,
+    statusEl: document.getElementById("statusChamant"),
+    gridEl: document.getElementById("gridChamant"),
+    callback: "handleChamant"
+  };
+
+  const LAFORET = {
+    name: "La Forêt",
+    sheetId: "1WqBZ2xacW0g41ZDlj64xEd4a5eoY5x0YgmV-xXPEDvI",
+    gid: "0",
+    startCol: 14, labelRow: 1, valueRow: 4,
+    statusEl: document.getElementById("statusLaforet"),
+    gridEl: document.getElementById("gridLaforet"),
+    callback: "handleLaforet"
+  };
+
+  const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET];
+
+  const globalStatus = document.getElementById("globalStatus");
+  const toggleBtn = document.getElementById("toggleViewBtn");
+  const toggleHint = document.getElementById("toggleViewHint");
+
+  // false => filtre M-3→M+1 ; true => tous les mois
+  let SHOW_ALL_MONTHS = false;
+
+  // payload cache pour rerender sans recharger
+  const LAST_PAYLOAD = new Map();
+
+  function clamp01(x){
+    x = Number(x);
+    if (!isFinite(x)) return 0;
+    return Math.max(0, Math.min(1, x));
+  }
+  function pct(x){ return Math.round(clamp01(x)*100); }
+
+  // Supporte "Février 2026", "02/2026", "2026-02"
+  function normalizeMonthLabel(label) {
+    const l = String(label || "").toLowerCase();
+
+    const months = {
+      janvier:0, fevrier:1, février:1, mars:2, avril:3, mai:4, juin:5,
+      juillet:6, aout:7, août:7, septembre:8, octobre:9, novembre:10, decembre:11, décembre:11
+    };
+
+    // "Février 2026"
+    for (const m in months) {
+      if (l.includes(m)) {
+        const year = parseInt(l.match(/20\d{2}/)?.[0], 10);
+        if (!isNaN(year)) return new Date(year, months[m], 1);
+      }
+    }
+
+    // "MM/YYYY" ou "MM-YYYY"
+    let m = l.match(/(\d{1,2})[\/\-](20\d{2})/);
+    if (m) return new Date(parseInt(m[2], 10), parseInt(m[1], 10) - 1, 1);
+
+    // "YYYY-MM" ou "YYYY/MM"
+    m = l.match(/(20\d{2})[\/\-](\d{1,2})/);
+    if (m) return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, 1);
+
+    return null;
+  }
+
+  // Fenêtre : M-3 → M+1
+  function isMonthInWindow(label) {
+    if (SHOW_ALL_MONTHS) return true;
+
+    const d = normalizeMonthLabel(label);
+    if (!d) return true; // si non reconnu, on affiche plutôt que de masquer
+
+    const now = new Date();
+    const cur = new Date(now.getFullYear(), now.getMonth(), 1);
+    const min = new Date(cur.getFullYear(), cur.getMonth() - 3, 1);
+    const max = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+
+    const t = d.getTime();
+    return t >= min.getTime() && t <= max.getTime();
+  }
+
+  // iOS/Safari friendly donut (rotation dans le SVG, pas en CSS)
+  function renderMonthCard(gridEl, label, value){
+    const v = clamp01(value);
+    const p = pct(v);
+
+    let textColor, c1, c2;
+    if (p >= 90) { textColor = "var(--success-color)"; c1="#34d399"; c2="#059669"; }
+    else if (p >= 75) { textColor = "var(--warning-color)"; c1="#fbbf24"; c2="#d97706"; }
+    else { textColor = "var(--danger-color)"; c1="#f87171"; c2="#dc2626"; }
+
+    const size = 150;
+    const strokeWidth = 12;
+    const center = size / 2;
+    const radius = center - strokeWidth / 2;
+    const circumference = 2 * Math.PI * radius;
+    const dashOffset = circumference * (1 - v);
+
+    const uid = Math.random().toString(36).slice(2, 10);
+    const gradId = `grad-${uid}`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="month">${label}</div>
+
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="chart-svg" aria-label="${label}">
+        <defs>
+          <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${c1}" />
+            <stop offset="100%" stop-color="${c2}" />
+          </linearGradient>
+        </defs>
+
+        <g transform="rotate(-90 ${center} ${center})">
+          <circle cx="${center}" cy="${center}" r="${radius}" class="chart-circle-bg"></circle>
+          <circle cx="${center}" cy="${center}" r="${radius}" class="chart-circle-fg"
+            stroke="url(#${gradId})"
+            stroke-dasharray="${circumference}"
+            stroke-dashoffset="${circumference}">
+          </circle>
+        </g>
+
+        <text x="${center}" y="${center}" dy=".35em" class="chart-text" fill="${textColor}">${p}%</text>
+      </svg>
+
+      <div class="pctline" style="color:${textColor}">
+        ${p}% OK · <span style="color:#ef4444;font-weight:800;">${100-p}% restant</span>
+      </div>
+
+      <div class="barWrap">
+        <div class="bar" style="background:linear-gradient(90deg, ${c1}, ${c2});"></div>
+      </div>
+    `;
+    gridEl.appendChild(card);
+
+    // Animation iOS : setAttribute + requestAnimationFrame
+    requestAnimationFrame(() => {
+      const circle = card.querySelector(".chart-circle-fg");
+      if (circle) circle.setAttribute("stroke-dashoffset", String(dashOffset));
+      const bar = card.querySelector(".bar");
+      if (bar) bar.style.width = `${p}%`;
+    });
+  }
+
+  function loadSite(site){
+    site.statusEl.textContent = "Chargement des données…";
+    site.gridEl.innerHTML = "";
+
+    const src = `${WEBAPP_URL}?sheetId=${encodeURIComponent(site.sheetId)}&gid=${encodeURIComponent(site.gid)}`
+      + `&startCol=${encodeURIComponent(site.startCol)}`
+      + `&labelRow=${encodeURIComponent(site.labelRow)}`
+      + `&valueRow=${encodeURIComponent(site.valueRow)}`
+      + `&callback=${encodeURIComponent(site.callback)}&_=${Date.now()}`;
+
+    const s = document.createElement("script");
+    s.src = src;
+
+    // Debug iOS : si callback ne revient jamais
+    s.onload = () => {
+      site.statusEl.textContent = "Script chargé… en attente du callback…";
+    };
+    s.onerror = () => {
+      site.statusEl.innerHTML = `<div class="err">Erreur : chargement WebApp impossible pour ${site.name}</div>`;
+    };
+    setTimeout(() => {
+      if (!LAST_PAYLOAD.get(site.name)) {
+        site.statusEl.innerHTML = `<div class="err">${site.name} : aucun retour de la WebApp.<br><span class="muted">Testez cette URL dans Safari :<br>${src}</span></div>`;
+      }
+    }, 7000);
+
+    document.head.appendChild(s);
+  }
+
+  function renderFromPayload(site, payload){
+    if(!payload || !payload.ok){
+      const msg = payload && payload.error ? payload.error : "erreur de lecture";
+      site.statusEl.innerHTML = `<div class="err">${site.name} : ${msg}</div>`;
+      site.gridEl.innerHTML = "";
+      return;
+    }
+
+    const raw = payload.items || [];
+    const items = raw.filter(it => isMonthInWindow(it.label));
+
+    if(!items.length){
+      site.statusEl.innerHTML = `<div class="err">${site.name} : aucun mois à afficher (filtre actif)</div>`;
+      site.gridEl.innerHTML = "";
+      return;
+    }
+
+    const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "Fenêtre M-3 → M+1";
+    site.statusEl.innerHTML = `✅ ${site.name} – <strong>${items.length}</strong> mois affichés · <span class="muted">${mode}</span>`;
+    site.gridEl.innerHTML = "";
+    items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value));
+  }
+
+  function updateGlobalStatus(){
+    const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "Fenêtre M-3 → M+1";
+    globalStatus.innerHTML = `🚀 Tableau de bord actif · Mode : <strong>${mode}</strong>`;
+  }
+
+  function updateToggleButton(){
+    const textNode = toggleBtn.firstChild;
+    if (SHOW_ALL_MONTHS){
+      if (textNode) textNode.nodeValue = "Revenir à la vue M-3 → M+1\n";
+      toggleHint.textContent = "Affiche 3 mois avant + mois courant + 1 mois après";
+    } else {
+      if (textNode) textNode.nodeValue = "Voir tous les mois\n";
+      toggleHint.textContent = "Affiche toutes les colonnes (sans filtre)";
+    }
+  }
+
+  function rerenderAll(){
+    for (const site of SITES){
+      const p = LAST_PAYLOAD.get(site.name);
+      if (p) renderFromPayload(site, p);
+    }
+    updateGlobalStatus();
+    updateToggleButton();
+  }
+
+  // Callbacks JSONP
+  window.handleNogent = (payload) => { LAST_PAYLOAD.set("Nogent", payload); renderFromPayload(NOGENT, payload); };
+  window.handlePontpoint = (payload) => { LAST_PAYLOAD.set("Pontpoint", payload); renderFromPayload(PONTPOINT, payload); };
+  window.handleChamant = (payload) => { LAST_PAYLOAD.set("Chamant", payload); renderFromPayload(CHAMANT, payload); };
+  window.handleLaforet = (payload) => { LAST_PAYLOAD.set("La Forêt", payload); renderFromPayload(LAFORET, payload); };
+
+  // Toggle
+  toggleBtn.addEventListener("click", () => {
+    SHOW_ALL_MONTHS = !SHOW_ALL_MONTHS;
+    rerenderAll();
+  });
+
+  // Init
+  globalStatus.textContent = "⏳ Initialisation et chargement…";
+  updateToggleButton();
+
+  loadSite(NOGENT);
+  loadSite(PONTPOINT);
+  loadSite(CHAMANT);
+  loadSite(LAFORET);
+
+  setTimeout(updateGlobalStatus, 900);
+</script>
+</body>
+</html>
