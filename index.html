@@ -32,7 +32,100 @@
   }
 
   .wrap{max-width:1200px;margin:auto;padding:24px 16px;}
-  h1{margin:0 0 8px;font-size:24px;font-weight:800;letter-spacing:-.5px;}
+
+  /* === HERO === */
+  .hero{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:18px;
+    border:1px solid rgba(148,163,184,.16);
+    background:
+      radial-gradient(800px 300px at 20% 20%, rgba(16,185,129,.15), rgba(0,0,0,0) 60%),
+      radial-gradient(700px 300px at 85% 30%, rgba(56,189,248,.12), rgba(0,0,0,0) 55%),
+      url("assets/bg-tech.jpg") center/cover no-repeat;
+    box-shadow:
+      0 12px 35px rgba(0,0,0,.35),
+      inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(2,6,23,.35), rgba(2,6,23,.78));
+  }
+  .heroInner{
+    position:relative;
+    z-index:1;
+    padding:18px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    min-height:150px;
+    flex-wrap:wrap;
+  }
+
+  /* Cartouche titre 3D */
+  .title3d{
+    max-width:820px;
+    padding:14px 16px;
+    border-radius:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 18px 45px rgba(0,0,0,.40),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -10px 30px rgba(0,0,0,.22);
+  }
+  .kicker{
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(226,232,240,.78);
+    font-weight:800;
+  }
+  .title3d h1{
+    margin:6px 0 8px;
+    font-size:26px;
+    line-height:1.1;
+    font-weight:900;
+    letter-spacing:-.6px;
+    background: linear-gradient(90deg, #e2e8f0, rgba(226,232,240,.7));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  }
+  .sub{
+    color:rgba(148,163,184,.92);
+    font-size:13px;
+    font-weight:650;
+  }
+
+  /* Badge mode dynamique */
+  .modeBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 12px;
+    border-radius:999px;
+    background: rgba(15,23,42,.55);
+    border:1px solid rgba(148,163,184,.25);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    font-weight:900;
+    letter-spacing:.2px;
+    white-space:nowrap;
+  }
+  .modeDot{
+    width:8px;height:8px;border-radius:50%;
+    background:#38bdf8;
+    box-shadow:0 0 10px rgba(56,189,248,.55);
+  }
+  .modeText{font-size:13px;color:rgba(226,232,240,.95);}
+  .modeText small{font-weight:700;color:rgba(148,163,184,.95);}
+
   .muted{color:var(--muted-color);font-size:14px;}
 
   .topbar{
@@ -40,12 +133,12 @@
     align-items:flex-start;
     justify-content:space-between;
     gap:12px;
-    margin-top:16px;
+    margin-top:12px;
     flex-wrap:wrap;
   }
 
   #globalStatus{
-    font-weight:600;
+    font-weight:700;
     padding:14px 14px;
     background:var(--card-bg);
     border:1px solid var(--card-border);
@@ -61,7 +154,7 @@
     color:var(--text-color);
     border-radius:12px;
     padding:10px 14px;
-    font-weight:800;
+    font-weight:900;
     cursor:pointer;
     transition:transform .08s ease, border-color .15s ease, background .15s ease;
     user-select:none;
@@ -72,7 +165,7 @@
   .btn small{
     display:block;
     color:var(--muted-color);
-    font-weight:600;
+    font-weight:700;
     margin-top:2px;
   }
 
@@ -91,7 +184,7 @@
   }
   .err::before{content:'⚠️';font-size:18px;line-height:1.1;}
 
-  .siteBlock{margin-top:28px;}
+  .siteBlock{margin-top:24px;}
   .siteRow{
     display:flex;align-items:center;flex-wrap:wrap;gap:12px;
     margin-top:18px;padding-bottom:8px;border-bottom:1px solid var(--card-border);
@@ -129,8 +222,6 @@
     user-select:none;
     -webkit-tap-highlight-color: transparent;
   }
-
-  /* “spotlight” */
   .card::before{
     content:"";
     position:absolute; inset:-40%;
@@ -143,7 +234,6 @@
     transition:opacity .18s ease;
     pointer-events:none;
   }
-
   @media (hover:hover) and (pointer:fine){
     .card:hover{
       transform:translateY(-2px);
@@ -152,17 +242,14 @@
     }
     .card:hover::before{opacity:1;}
   }
-
-  /* petit indicateur “cliquable” */
   .card:active{transform:translateY(0px) scale(.995);}
-
   @media (prefers-reduced-motion: reduce){
     .card{transition:none;}
     .card::before{transition:none;}
   }
 
   .month{font-weight:900;font-size:16px;margin-bottom:10px;}
-  .pctline{font-size:13px;color:var(--muted-color);margin-top:10px;font-weight:700;}
+  .pctline{font-size:13px;color:var(--muted-color);margin-top:10px;font-weight:800;}
 
   .barWrap{
     height:12px;
@@ -181,7 +268,6 @@
     filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
   }
   .chart-circle-bg{fill:none;stroke:rgba(239,68,68,.25);stroke-width:12;}
-
   .chart-circle-fg{
     fill:none;
     stroke-width:12;
@@ -189,7 +275,6 @@
     transition:stroke-dashoffset .8s ease-out;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,.6));
   }
-
   .chart-text{font-size:24px;font-weight:900;text-anchor:middle;}
 
   /* Mode lumineux/sombre selon taux */
@@ -199,17 +284,33 @@
       drop-shadow(0 0 18px rgba(16,185,129,.25));
   }
   .card.bright .bar{filter:saturate(1.25) brightness(1.05);}
-
   .card.matte .chart-svg{filter: drop-shadow(0 5px 8px rgba(0,0,0,.45));}
   .card.matte .chart-circle-fg{opacity:.82; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55));}
   .card.matte .bar{filter:saturate(.9) brightness(.92); opacity:.9;}
+
+  /* ✅ suppression visuelle des statuts (on garde seulement erreurs) */
+  .siteStatus{display:none;}
+  .siteStatus.hasError{display:block;}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <h1>Tableau de bord des facturations des EHPAD – Pharmacie VSF</h1>
-  <div class="muted">Vue par défaut : M-3 → M+1. Bouton pour basculer sur tous les mois. Clic sur un camembert = ouvre le fichier de l’EHPAD (lien GID).</div>
+
+  <header class="hero">
+    <div class="heroInner">
+      <div class="title3d">
+        <div class="kicker">Pharmacie VSF · EHPAD</div>
+        <h1>Tableau de bord des facturations ✨</h1>
+        <div class="sub">Suivi mensuel · Clic sur un camembert pour ouvrir la feuille correspondante</div>
+      </div>
+
+      <div class="modeBadge" id="modeBadge" aria-live="polite">
+        <span class="modeDot"></span>
+        <span class="modeText">Mode : <small id="modeLabel">M-3→M+1</small></span>
+      </div>
+    </div>
+  </header>
 
   <div class="topbar">
     <div id="globalStatus">Chargement…</div>
@@ -222,7 +323,6 @@
   <div class="siteBlock">
     <div class="siteRow">
       <span class="pill"><span class="dot"></span>Nogent</span>
-      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
     </div>
     <div id="statusNogent" class="siteStatus muted"></div>
     <div id="gridNogent" class="grid"></div>
@@ -231,7 +331,6 @@
   <div class="siteBlock">
     <div class="siteRow">
       <span class="pill"><span class="dot"></span>Pontpoint</span>
-      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
     </div>
     <div id="statusPontpoint" class="siteStatus muted"></div>
     <div id="gridPontpoint" class="grid"></div>
@@ -240,7 +339,6 @@
   <div class="siteBlock">
     <div class="siteRow">
       <span class="pill"><span class="dot"></span>Chamant</span>
-      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
     </div>
     <div id="statusChamant" class="siteStatus muted"></div>
     <div id="gridChamant" class="grid"></div>
@@ -249,7 +347,6 @@
   <div class="siteBlock">
     <div class="siteRow">
       <span class="pill"><span class="dot"></span>La Forêt</span>
-      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 5</span>
     </div>
     <div id="statusLaforet" class="siteStatus muted"></div>
     <div id="gridLaforet" class="grid"></div>
@@ -258,17 +355,16 @@
   <div class="siteBlock">
     <div class="siteRow">
       <span class="pill"><span class="dot"></span>Monchy</span>
-      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 1</span>
     </div>
     <div id="statusMonchy" class="siteStatus muted"></div>
     <div id="gridMonchy" class="grid"></div>
   </div>
+
 </div>
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbworFCiwn7kdqF-eoDbwxMvYVwLUunVAjhy7NYZtwnA2plfTbAJD8AB8MeQoVHY4Wfq/exec";
 
-  // Construit le lien "edit?gid=...#gid=..."
   function makeGidUrl(sheetId, gid){
     const g = String(gid ?? "0");
     return `https://docs.google.com/spreadsheets/d/${sheetId}/edit?gid=${encodeURIComponent(g)}#gid=${encodeURIComponent(g)}`;
@@ -318,30 +414,26 @@
     name: "Monchy",
     sheetId: "1PBOLxDkW16bDy3EsVdjn1nuN8KRfKlBEHieRA1XnllA",
     gid: "0",
-    startCol: 14,  // O
-    labelRow: 1,   // ligne 2 (mois)
-    valueRow: 0,   // ligne 1 (%)
+    startCol: 14,
+    labelRow: 1,
+    valueRow: 0,
     statusEl: document.getElementById("statusMonchy"),
     gridEl: document.getElementById("gridMonchy"),
     callback: "handleMonchy"
   };
 
   const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET, MONCHY];
-
-  // Ajoute automatiquement le lien GID à chaque site (puisqu’il s’agit de vos “liens Excel”)
-  for (const site of SITES){
-    site.gidUrl = makeGidUrl(site.sheetId, site.gid);
-  }
+  for (const site of SITES) site.gidUrl = makeGidUrl(site.sheetId, site.gid);
 
   const globalStatus = document.getElementById("globalStatus");
   const toggleBtn = document.getElementById("toggleViewBtn");
   const toggleText = document.getElementById("toggleViewText");
   const toggleHint = document.getElementById("toggleViewHint");
+  const modeLabel = document.getElementById("modeLabel");
 
   // false => filtre M-3→M+1 ; true => tous les mois
   let SHOW_ALL_MONTHS = false;
 
-  // payload cache pour rerender sans recharger
   const LAST_PAYLOAD = new Map();
 
   function clamp01(x){
@@ -351,16 +443,13 @@
   }
   function pct(x){ return Math.round(clamp01(x)*100); }
 
-  // Supporte "Février 2026", "02/2026", "2026-02"
   function normalizeMonthLabel(label) {
     const l = String(label || "").toLowerCase();
-
     const months = {
       janvier:0, fevrier:1, février:1, mars:2, avril:3, mai:4, juin:5,
       juillet:6, aout:7, août:7, septembre:8, octobre:9, novembre:10, decembre:11, décembre:11
     };
 
-    // "Février 2026"
     for (const m in months) {
       if (l.includes(m)) {
         const year = parseInt(l.match(/20\d{2}/)?.[0], 10);
@@ -368,23 +457,20 @@
       }
     }
 
-    // "MM/YYYY" ou "MM-YYYY"
     let m = l.match(/(\d{1,2})[\/\-](20\d{2})/);
     if (m) return new Date(parseInt(m[2], 10), parseInt(m[1], 10) - 1, 1);
 
-    // "YYYY-MM" ou "YYYY/MM"
     m = l.match(/(20\d{2})[\/\-](\d{1,2})/);
     if (m) return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, 1);
 
     return null;
   }
 
-  // Fenêtre : M-3 → M+1
   function isMonthInWindow(label) {
     if (SHOW_ALL_MONTHS) return true;
 
     const d = normalizeMonthLabel(label);
-    if (!d) return true; // si non reconnu, on affiche plutôt que de masquer
+    if (!d) return true;
 
     const now = new Date();
     const cur = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -395,7 +481,6 @@
     return t >= min.getTime() && t <= max.getTime();
   }
 
-  // Spotlight : suit la souris sur desktop
   function attachSpotlight(card){
     if (!window.matchMedia || !matchMedia("(hover:hover) and (pointer:fine)").matches) return;
     card.addEventListener("mousemove", (e) => {
@@ -407,7 +492,6 @@
     }, { passive:true });
   }
 
-  // Donut 3D + taille réduite + clic = ouvre le lien GID du site
   function renderMonthCard(gridEl, label, value, site){
     const v = clamp01(value);
     const p = pct(v);
@@ -429,25 +513,19 @@
 
     const card = document.createElement("div");
     card.className = "card";
-    card.title = `Ouvrir le fichier ${site.name} (GID)`;
+    card.title = `Ouvrir ${site.name}`;
 
-    // mode lumineux/mat selon taux
     if (p >= 90) card.classList.add("bright");
     else if (p < 75) card.classList.add("matte");
 
-    // ✅ clic : ouvre le lien du site (sheet+gid)
     card.addEventListener("click", () => {
       if (site.gidUrl) window.open(site.gidUrl, "_blank", "noopener");
     });
 
-    // ✅ accessibilité : Enter/Space déclenche aussi le clic
     card.setAttribute("role", "link");
     card.setAttribute("tabindex", "0");
     card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        card.click();
-      }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
     });
 
     card.innerHTML = `
@@ -501,7 +579,7 @@
       </svg>
 
       <div class="pctline" style="color:${textColor}">
-        ${p}% OK · <span style="color:#ef4444;font-weight:800;">${100-p}% restant</span>
+        ${p}% OK · <span style="color:#ef4444;font-weight:900;">${100-p}% restant</span>
       </div>
 
       <div class="barWrap">
@@ -524,8 +602,15 @@
     });
   }
 
+  function setSiteError(site, msg){
+    site.statusEl.classList.add("hasError");
+    site.statusEl.style.display = "block";
+    site.statusEl.innerHTML = `<div class="err">${site.name} : ${msg}</div>`;
+  }
+
   function loadSite(site){
-    site.statusEl.textContent = "Chargement des données…";
+    site.statusEl.innerHTML = "";
+    site.statusEl.classList.remove("hasError");
     site.gridEl.innerHTML = "";
 
     const src = `${WEBAPP_URL}?sheetId=${encodeURIComponent(site.sheetId)}&gid=${encodeURIComponent(site.gid)}`
@@ -537,12 +622,11 @@
     const s = document.createElement("script");
     s.src = src;
 
-    s.onload = () => { site.statusEl.textContent = "Script chargé… en attente du callback…"; };
-    s.onerror = () => { site.statusEl.innerHTML = `<div class="err">Erreur : chargement WebApp impossible pour ${site.name}</div>`; };
+    s.onerror = () => setSiteError(site, "chargement WebApp impossible");
 
     setTimeout(() => {
       if (!LAST_PAYLOAD.get(site.name)) {
-        site.statusEl.innerHTML = `<div class="err">${site.name} : aucun retour de la WebApp.<br><span class="muted">Testez cette URL dans Safari :<br>${src}</span></div>`;
+        setSiteError(site, "aucun retour de la WebApp");
       }
     }, 7000);
 
@@ -552,7 +636,7 @@
   function renderFromPayload(site, payload){
     if(!payload || !payload.ok){
       const msg = payload && payload.error ? payload.error : "erreur de lecture";
-      site.statusEl.innerHTML = `<div class="err">${site.name} : ${msg}</div>`;
+      setSiteError(site, msg);
       site.gridEl.innerHTML = "";
       return;
     }
@@ -561,20 +645,20 @@
     const items = raw.filter(it => isMonthInWindow(it.label));
 
     if(!items.length){
-      site.statusEl.innerHTML = `<div class="err">${site.name} : aucun mois à afficher (filtre actif)</div>`;
+      setSiteError(site, "aucun mois à afficher (filtre actif)");
       site.gridEl.innerHTML = "";
       return;
     }
 
-    const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "Fenêtre M-3 → M+1";
-    site.statusEl.innerHTML = `✅ ${site.name} – <strong>${items.length}</strong> mois affichés · <span class="muted">${mode}</span> · <span class="muted">Clic camembert → ouvre GID</span>`;
+    // ✅ pas de texte “✅ …”
     site.gridEl.innerHTML = "";
     items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value, site));
   }
 
   function updateGlobalStatus(){
-    const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "Fenêtre M-3 → M+1";
-    globalStatus.innerHTML = `🚀 Tableau de bord actif · Mode : <strong>${mode}</strong>`;
+    const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "M-3→M+1";
+    globalStatus.innerHTML = `🚀 Chargé · <span class="muted">Clic sur un mois pour ouvrir la feuille</span>`;
+    modeLabel.textContent = mode;
   }
 
   function updateToggleButton(){
@@ -612,6 +696,7 @@
   // Init
   globalStatus.textContent = "⏳ Initialisation et chargement…";
   updateToggleButton();
+  updateGlobalStatus();
 
   loadSite(NOGENT);
   loadSite(PONTPOINT);
