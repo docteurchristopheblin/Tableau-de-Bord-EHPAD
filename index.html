@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Dashboard – Suivi OK</title>
+<title>Tableau de bord des facturations des EHPAD - Pharmacie VSF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -114,7 +114,7 @@
   }
 
   .card{
-    background:var(--card-bg);
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.25)), var(--card-bg);
     border:1px solid var(--card-border);
     border-radius:16px;
     padding:16px;
@@ -137,16 +137,26 @@
   .bar{height:100%;border-radius:999px;width:0;transition:width .8s ease-out;}
 
   /* iOS/Safari friendly: pas de rotation CSS du SVG */
-  .chart-svg{display:block;margin:0 auto;}
+  .chart-svg{
+    display:block;
+    margin:0 auto;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+  }
   .chart-circle-bg{fill:none;stroke:rgba(239,68,68,.25);stroke-width:12;}
-  .chart-circle-fg{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .8s ease-out;}
-  .chart-text{font-size:26px;font-weight:900;text-anchor:middle;}
+  .chart-circle-fg{
+    fill:none;
+    stroke-width:12;
+    stroke-linecap:round;
+    transition:stroke-dashoffset .8s ease-out;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.6));
+  }
+  .chart-text{font-size:24px;font-weight:900;text-anchor:middle;}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <h1>Dashboard – Suivi OK (Pharmacie)</h1>
+  <h1>Tableau de bord des facturations des EHPAD – Pharmacie VSF</h1>
   <div class="muted">Vue par défaut : M-3 → M+1. Bouton pour basculer sur tous les mois.</div>
 
   <div class="topbar">
@@ -191,6 +201,15 @@
     </div>
     <div id="statusLaforet" class="siteStatus muted"></div>
     <div id="gridLaforet" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Monchy</span>
+      <span class="muted">Départ O · Titres ligne 2 · Valeurs ligne 1</span>
+    </div>
+    <div id="statusMonchy" class="siteStatus muted"></div>
+    <div id="gridMonchy" class="grid"></div>
   </div>
 </div>
 
@@ -237,7 +256,19 @@
     callback: "handleLaforet"
   };
 
-  const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET];
+  const MONCHY = {
+    name: "Monchy",
+    sheetId: "1PBOLxDkW16bDy3EsVdjn1nuN8KRfKlBEHieRA1XnllA",
+    gid: "0",
+    startCol: 14,  // O
+    labelRow: 1,   // ligne 2 (mois)
+    valueRow: 0,   // ligne 1 (%)
+    statusEl: document.getElementById("statusMonchy"),
+    gridEl: document.getElementById("gridMonchy"),
+    callback: "handleMonchy"
+  };
+
+  const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET, MONCHY];
 
   const globalStatus = document.getElementById("globalStatus");
   const toggleBtn = document.getElementById("toggleViewBtn");
@@ -268,17 +299,17 @@
     // "Février 2026"
     for (const m in months) {
       if (l.includes(m)) {
-        const year = parseInt(l.match(/20\d{2}/)?.[0], 10);
+        const year = parseInt(l.match(/20\\d{2}/)?.[0], 10);
         if (!isNaN(year)) return new Date(year, months[m], 1);
       }
     }
 
     // "MM/YYYY" ou "MM-YYYY"
-    let m = l.match(/(\d{1,2})[\/\-](20\d{2})/);
+    let m = l.match(/(\\d{1,2})[\\/\\-](20\\d{2})/);
     if (m) return new Date(parseInt(m[2], 10), parseInt(m[1], 10) - 1, 1);
 
     // "YYYY-MM" ou "YYYY/MM"
-    m = l.match(/(20\d{2})[\/\-](\d{1,2})/);
+    m = l.match(/(20\\d{2})[\\/\\-](\\d{1,2})/);
     if (m) return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, 1);
 
     return null;
@@ -310,7 +341,7 @@
     else if (p >= 75) { textColor = "var(--warning-color)"; c1="#fbbf24"; c2="#d97706"; }
     else { textColor = "var(--danger-color)"; c1="#f87171"; c2="#dc2626"; }
 
-    const size = 150;
+    const size = 120;           // ✅ plus petit
     const strokeWidth = 12;
     const center = size / 2;
     const radius = center - strokeWidth / 2;
@@ -331,12 +362,41 @@
             <stop offset="0%" stop-color="${c1}" />
             <stop offset="100%" stop-color="${c2}" />
           </linearGradient>
+
+          <!-- effet relief -->
+          <linearGradient id="${gradId}-bevel" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255,255,255,.65)" />
+            <stop offset="40%" stop-color="rgba(255,255,255,.15)" />
+            <stop offset="100%" stop-color="rgba(0,0,0,.4)" />
+          </linearGradient>
         </defs>
 
         <g transform="rotate(-90 ${center} ${center})">
           <circle cx="${center}" cy="${center}" r="${radius}" class="chart-circle-bg"></circle>
+
+          <!-- couche arrière (ombre) -->
+          <circle cx="${center}" cy="${center}" r="${radius}"
+            fill="none"
+            stroke="url(#${gradId})"
+            stroke-width="${strokeWidth+2}"
+            stroke-linecap="round"
+            stroke-dasharray="${circumference}"
+            stroke-dashoffset="${circumference}"
+            opacity="0.35">
+          </circle>
+
+          <!-- couche principale -->
           <circle cx="${center}" cy="${center}" r="${radius}" class="chart-circle-fg"
             stroke="url(#${gradId})"
+            stroke-dasharray="${circumference}"
+            stroke-dashoffset="${circumference}">
+          </circle>
+
+          <!-- reflet 3D -->
+          <circle cx="${center}" cy="${center}" r="${radius-1}"
+            fill="none"
+            stroke="url(#${gradId}-bevel)"
+            stroke-width="2"
             stroke-dasharray="${circumference}"
             stroke-dashoffset="${circumference}">
           </circle>
@@ -357,8 +417,11 @@
 
     // Animation iOS : setAttribute + requestAnimationFrame
     requestAnimationFrame(() => {
-      const circle = card.querySelector(".chart-circle-fg");
-      if (circle) circle.setAttribute("stroke-dashoffset", String(dashOffset));
+      const circles = card.querySelectorAll("circle");
+      // cercle 1 = bg, cercle 2 = shadow, cercle 3 = fg, cercle 4 = bevel
+      if (circles[2]) circles[2].setAttribute("stroke-dashoffset", String(dashOffset));
+      if (circles[3]) circles[3].setAttribute("stroke-dashoffset", String(dashOffset));
+      if (circles[1]) circles[1].setAttribute("stroke-dashoffset", String(dashOffset)); // shadow aussi
       const bar = card.querySelector(".bar");
       if (bar) bar.style.width = `${p}%`;
     });
@@ -446,6 +509,7 @@
   window.handlePontpoint = (payload) => { LAST_PAYLOAD.set("Pontpoint", payload); renderFromPayload(PONTPOINT, payload); };
   window.handleChamant = (payload) => { LAST_PAYLOAD.set("Chamant", payload); renderFromPayload(CHAMANT, payload); };
   window.handleLaforet = (payload) => { LAST_PAYLOAD.set("La Forêt", payload); renderFromPayload(LAFORET, payload); };
+  window.handleMonchy = (payload) => { LAST_PAYLOAD.set("Monchy", payload); renderFromPayload(MONCHY, payload); };
 
   // Toggle
   toggleBtn.addEventListener("click", () => {
@@ -461,6 +525,7 @@
   loadSite(PONTPOINT);
   loadSite(CHAMANT);
   loadSite(LAFORET);
+  loadSite(MONCHY);
 
   setTimeout(updateGlobalStatus, 900);
 </script>
