@@ -125,6 +125,9 @@
     backdrop-filter:blur(10px);
     box-shadow:0 4px 6px -1px rgba(0,0,0,.2);
     transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* “spotlight” */
@@ -149,6 +152,9 @@
     }
     .card:hover::before{opacity:1;}
   }
+
+  /* petit indicateur “cliquable” */
+  .card:active{transform:translateY(0px) scale(.995);}
 
   @media (prefers-reduced-motion: reduce){
     .card{transition:none;}
@@ -203,7 +209,7 @@
 <body>
 <div class="wrap">
   <h1>Tableau de bord des facturations des EHPAD – Pharmacie VSF</h1>
-  <div class="muted">Vue par défaut : M-3 → M+1. Bouton pour basculer sur tous les mois.</div>
+  <div class="muted">Vue par défaut : M-3 → M+1. Bouton pour basculer sur tous les mois. Clic sur un camembert = ouvre le fichier de l’EHPAD (lien GID).</div>
 
   <div class="topbar">
     <div id="globalStatus">Chargement…</div>
@@ -262,6 +268,12 @@
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbworFCiwn7kdqF-eoDbwxMvYVwLUunVAjhy7NYZtwnA2plfTbAJD8AB8MeQoVHY4Wfq/exec";
 
+  // Construit le lien "edit?gid=...#gid=..."
+  function makeGidUrl(sheetId, gid){
+    const g = String(gid ?? "0");
+    return `https://docs.google.com/spreadsheets/d/${sheetId}/edit?gid=${encodeURIComponent(g)}#gid=${encodeURIComponent(g)}`;
+  }
+
   const NOGENT = {
     name: "Nogent",
     sheetId: "1eeRp1V9upw967UPEPyf8qJiSa4dwC0ULLoFuojl7nyc",
@@ -315,6 +327,11 @@
   };
 
   const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET, MONCHY];
+
+  // Ajoute automatiquement le lien GID à chaque site (puisqu’il s’agit de vos “liens Excel”)
+  for (const site of SITES){
+    site.gidUrl = makeGidUrl(site.sheetId, site.gid);
+  }
 
   const globalStatus = document.getElementById("globalStatus");
   const toggleBtn = document.getElementById("toggleViewBtn");
@@ -390,8 +407,8 @@
     }, { passive:true });
   }
 
-  // Donut 3D + taille réduite
-  function renderMonthCard(gridEl, label, value){
+  // Donut 3D + taille réduite + clic = ouvre le lien GID du site
+  function renderMonthCard(gridEl, label, value, site){
     const v = clamp01(value);
     const p = pct(v);
 
@@ -400,7 +417,7 @@
     else if (p >= 75) { textColor = "var(--warning-color)"; c1="#fbbf24"; c2="#d97706"; }
     else { textColor = "var(--danger-color)"; c1="#f87171"; c2="#dc2626"; }
 
-    const size = 120;                 // camembert plus petit
+    const size = 120;
     const strokeWidth = 12;
     const center = size / 2;
     const radius = center - strokeWidth / 2;
@@ -412,9 +429,26 @@
 
     const card = document.createElement("div");
     card.className = "card";
-    // mode lumineux/sombre selon taux
+    card.title = `Ouvrir le fichier ${site.name} (GID)`;
+
+    // mode lumineux/mat selon taux
     if (p >= 90) card.classList.add("bright");
     else if (p < 75) card.classList.add("matte");
+
+    // ✅ clic : ouvre le lien du site (sheet+gid)
+    card.addEventListener("click", () => {
+      if (site.gidUrl) window.open(site.gidUrl, "_blank", "noopener");
+    });
+
+    // ✅ accessibilité : Enter/Space déclenche aussi le clic
+    card.setAttribute("role", "link");
+    card.setAttribute("tabindex", "0");
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        card.click();
+      }
+    });
 
     card.innerHTML = `
       <div class="month">${label}</div>
@@ -436,7 +470,6 @@
         <g transform="rotate(-90 ${center} ${center})">
           <circle cx="${center}" cy="${center}" r="${radius}" class="chart-circle-bg"></circle>
 
-          <!-- couche arrière (ombre) -->
           <circle data-role="shadow"
             cx="${center}" cy="${center}" r="${radius}"
             fill="none"
@@ -448,14 +481,12 @@
             opacity="0.35">
           </circle>
 
-          <!-- couche principale -->
           <circle data-role="fg" cx="${center}" cy="${center}" r="${radius}" class="chart-circle-fg"
             stroke="url(#${gradId})"
             stroke-dasharray="${circumference}"
             stroke-dashoffset="${circumference}">
           </circle>
 
-          <!-- reflet 3D -->
           <circle data-role="bevel"
             cx="${center}" cy="${center}" r="${radius-1}"
             fill="none"
@@ -477,6 +508,7 @@
         <div class="bar" style="background:linear-gradient(90deg, ${c1}, ${c2});"></div>
       </div>
     `;
+
     gridEl.appendChild(card);
     attachSpotlight(card);
 
@@ -535,9 +567,9 @@
     }
 
     const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "Fenêtre M-3 → M+1";
-    site.statusEl.innerHTML = `✅ ${site.name} – <strong>${items.length}</strong> mois affichés · <span class="muted">${mode}</span>`;
+    site.statusEl.innerHTML = `✅ ${site.name} – <strong>${items.length}</strong> mois affichés · <span class="muted">${mode}</span> · <span class="muted">Clic camembert → ouvre GID</span>`;
     site.gridEl.innerHTML = "";
-    items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value));
+    items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value, site));
   }
 
   function updateGlobalStatus(){
@@ -545,7 +577,6 @@
     globalStatus.innerHTML = `🚀 Tableau de bord actif · Mode : <strong>${mode}</strong>`;
   }
 
-  // ✅ FIX : ne plus dépendre de firstChild (fragile). On met à jour un <span> dédié.
   function updateToggleButton(){
     if (SHOW_ALL_MONTHS){
       toggleText.textContent = "Revenir à la vue M-3 → M+1";
