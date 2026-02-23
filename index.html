@@ -25,58 +25,28 @@
   body{
     margin:0;
     font-family:'Inter',system-ui,-apple-system,sans-serif;
-    background:var(--bg-color);
     color:var(--text-color);
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
+
+    /* ✅ fond global (ton fichier GitHub actuel) */
+    background:
+      radial-gradient(900px 420px at 18% 12%, rgba(16,185,129,.16), rgba(0,0,0,0) 60%),
+      radial-gradient(900px 420px at 88% 18%, rgba(56,189,248,.14), rgba(0,0,0,0) 55%),
+      linear-gradient(180deg, rgba(2,6,23,.72), rgba(2,6,23,.90)),
+      url("assetsbg-tech.jpg.jpg") center/cover no-repeat fixed;
   }
 
   .wrap{max-width:1200px;margin:auto;padding:24px 16px;}
 
-  /* === HERO === */
-  .hero{
-    position:relative;
-    border-radius:18px;
-    overflow:hidden;
-    margin-bottom:18px;
-    border:1px solid rgba(148,163,184,.16);
-    background:
-      radial-gradient(800px 300px at 20% 20%, rgba(16,185,129,.15), rgba(0,0,0,0) 60%),
-      radial-gradient(700px 300px at 85% 30%, rgba(56,189,248,.12), rgba(0,0,0,0) 55%),
-      url("assetsbg-tech.jpg.jpg") center/cover no-repeat;
-    box-shadow:
-      0 12px 35px rgba(0,0,0,.35),
-      inset 0 1px 0 rgba(255,255,255,.05);
-  }
-  .hero::after{
-    content:"";
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, rgba(2,6,23,.35), rgba(2,6,23,.78));
-  }
-  .heroInner{
-    position:relative;
-    z-index:1;
-    padding:18px;
+  /* ===== Header (sans cadre autour, 1 seul cadre sous le titre) ===== */
+  .headerBlock{margin: 6px 0 14px;}
+  .headerTop{
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
     gap:12px;
-    min-height:150px;
     flex-wrap:wrap;
-  }
-
-  /* Cartouche titre 3D */
-  .title3d{
-    max-width:820px;
-    padding:14px 16px;
-    border-radius:18px;
-    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.14);
-    backdrop-filter: blur(10px);
-    box-shadow:
-      0 18px 45px rgba(0,0,0,.40),
-      inset 0 1px 0 rgba(255,255,255,.18),
-      inset 0 -10px 30px rgba(0,0,0,.22);
   }
   .kicker{
     font-size:12px;
@@ -85,37 +55,46 @@
     color:rgba(226,232,240,.78);
     font-weight:800;
   }
-  .title3d h1{
-    margin:6px 0 8px;
-    font-size:26px;
-    line-height:1.1;
+  .headerTitle{
+    margin:6px 0 6px;
+    font-size:28px;
+    line-height:1.08;
     font-weight:900;
-    letter-spacing:-.6px;
-    background: linear-gradient(90deg, #e2e8f0, rgba(226,232,240,.7));
+    letter-spacing:-.7px;
+    background: linear-gradient(90deg, #e2e8f0, rgba(226,232,240,.72));
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
     text-shadow: 0 1px 0 rgba(0,0,0,.35);
   }
-  .sub{
-    color:rgba(148,163,184,.92);
+  .headerCard{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 18px 45px rgba(0,0,0,.40),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 -10px 30px rgba(0,0,0,.18);
+    color:rgba(148,163,184,.95);
     font-size:13px;
     font-weight:650;
   }
 
-  /* Badge mode dynamique */
+  /* Badge mode */
   .modeBadge{
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:10px 12px;
+    padding:8px 10px;
     border-radius:999px;
-    background: rgba(15,23,42,.55);
-    border:1px solid rgba(148,163,184,.25);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    background: rgba(2,6,23,.35);
+    border:1px solid rgba(148,163,184,.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
     font-weight:900;
-    letter-spacing:.2px;
     white-space:nowrap;
   }
   .modeDot{
@@ -124,7 +103,7 @@
     box-shadow:0 0 10px rgba(56,189,248,.55);
   }
   .modeText{font-size:13px;color:rgba(226,232,240,.95);}
-  .modeText small{font-weight:700;color:rgba(148,163,184,.95);}
+  .modeText small{font-weight:750;color:rgba(148,163,184,.95);}
 
   .muted{color:var(--muted-color);font-size:14px;}
 
@@ -145,6 +124,7 @@
     border-radius:12px;
     flex:1;
     min-width:260px;
+    backdrop-filter: blur(10px);
   }
 
   .btn{
@@ -159,6 +139,7 @@
     transition:transform .08s ease, border-color .15s ease, background .15s ease;
     user-select:none;
     -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(10px);
   }
   .btn:hover{border-color:rgba(148,163,184,.55); background:rgba(30,41,59,.85);}
   .btn:active{transform:translateY(1px);}
@@ -195,9 +176,9 @@
     background:var(--success-bg-muted);color:var(--success-color);
     border:1px solid var(--success-color);
     font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px;
+    backdrop-filter: blur(10px);
   }
   .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
-  .siteStatus{margin-top:10px;font-size:14px;font-style:italic;}
 
   .grid{
     display:grid;
@@ -288,7 +269,7 @@
   .card.matte .chart-circle-fg{opacity:.82; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55));}
   .card.matte .bar{filter:saturate(.9) brightness(.92); opacity:.9;}
 
-  /* ✅ suppression visuelle des statuts (on garde seulement erreurs) */
+  /* ✅ on ne montre plus les textes de statut par site, sauf erreurs */
   .siteStatus{display:none;}
   .siteStatus.hasError{display:block;}
 </style>
@@ -297,20 +278,23 @@
 <body>
 <div class="wrap">
 
-  <header class="hero">
-    <div class="heroInner">
-      <div class="title3d">
+  <div class="headerBlock">
+    <div class="headerTop">
+      <div>
         <div class="kicker">Pharmacie VSF · EHPAD</div>
-        <h1>Tableau de bord des facturations ✨</h1>
-        <div class="sub">Suivi mensuel · Clic sur un camembert pour ouvrir la feuille correspondante</div>
+        <div class="headerTitle">Tableau de bord des facturations ✨</div>
       </div>
 
-      <div class="modeBadge" id="modeBadge" aria-live="polite">
+      <div class="modeBadge" aria-live="polite">
         <span class="modeDot"></span>
         <span class="modeText">Mode : <small id="modeLabel">M-3→M+1</small></span>
       </div>
     </div>
-  </header>
+
+    <div class="headerCard">
+      Suivi mensuel · Clic sur un camembert pour ouvrir la feuille correspondante
+    </div>
+  </div>
 
   <div class="topbar">
     <div id="globalStatus">Chargement…</div>
@@ -414,9 +398,9 @@
     name: "Monchy",
     sheetId: "1PBOLxDkW16bDy3EsVdjn1nuN8KRfKlBEHieRA1XnllA",
     gid: "0",
-    startCol: 14,
-    labelRow: 1,
-    valueRow: 0,
+    startCol: 14,  // O
+    labelRow: 1,   // ligne 2 (mois)
+    valueRow: 0,   // ligne 1 (%)
     statusEl: document.getElementById("statusMonchy"),
     gridEl: document.getElementById("gridMonchy"),
     callback: "handleMonchy"
@@ -431,9 +415,7 @@
   const toggleHint = document.getElementById("toggleViewHint");
   const modeLabel = document.getElementById("modeLabel");
 
-  // false => filtre M-3→M+1 ; true => tous les mois
   let SHOW_ALL_MONTHS = false;
-
   const LAST_PAYLOAD = new Map();
 
   function clamp01(x){
@@ -625,9 +607,7 @@
     s.onerror = () => setSiteError(site, "chargement WebApp impossible");
 
     setTimeout(() => {
-      if (!LAST_PAYLOAD.get(site.name)) {
-        setSiteError(site, "aucun retour de la WebApp");
-      }
+      if (!LAST_PAYLOAD.get(site.name)) setSiteError(site, "aucun retour de la WebApp");
     }, 7000);
 
     document.head.appendChild(s);
@@ -650,7 +630,6 @@
       return;
     }
 
-    // ✅ pas de texte “✅ …”
     site.gridEl.innerHTML = "";
     items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value, site));
   }
@@ -680,20 +659,17 @@
     updateToggleButton();
   }
 
-  // Callbacks JSONP
   window.handleNogent = (payload) => { LAST_PAYLOAD.set("Nogent", payload); renderFromPayload(NOGENT, payload); };
   window.handlePontpoint = (payload) => { LAST_PAYLOAD.set("Pontpoint", payload); renderFromPayload(PONTPOINT, payload); };
   window.handleChamant = (payload) => { LAST_PAYLOAD.set("Chamant", payload); renderFromPayload(CHAMANT, payload); };
   window.handleLaforet = (payload) => { LAST_PAYLOAD.set("La Forêt", payload); renderFromPayload(LAFORET, payload); };
   window.handleMonchy = (payload) => { LAST_PAYLOAD.set("Monchy", payload); renderFromPayload(MONCHY, payload); };
 
-  // Toggle
   toggleBtn.addEventListener("click", () => {
     SHOW_ALL_MONTHS = !SHOW_ALL_MONTHS;
     rerenderAll();
   });
 
-  // Init
   globalStatus.textContent = "⏳ Initialisation et chargement…";
   updateToggleButton();
   updateGlobalStatus();
@@ -708,4 +684,3 @@
 </script>
 </body>
 </html>
-
