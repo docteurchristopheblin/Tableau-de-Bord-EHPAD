@@ -1,3 +1,351 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tableau de bord des facturations des EHPAD - Pharmacie VSF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-color:#0f172a;
+    --text-color:#e2e8f0;
+    --muted-color:#94a3b8;
+    --card-bg:rgba(30,41,59,.82);
+    --card-border:rgba(148,163,184,.15);
+    --success-color:#10b981;
+    --warning-color:#f59e0b;
+    --danger-color:#ef4444;
+    --danger-bg-muted:rgba(239,68,68,.2);
+    --success-bg-muted:rgba(16,185,129,.2);
+  }
+
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    color:var(--text-color);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+
+    /* ✅ fond global (ton fichier GitHub actuel) */
+    background:
+      radial-gradient(900px 420px at 18% 12%, rgba(16,185,129,.16), rgba(0,0,0,0) 60%),
+      radial-gradient(900px 420px at 88% 18%, rgba(56,189,248,.14), rgba(0,0,0,0) 55%),
+      linear-gradient(180deg, rgba(2,6,23,.72), rgba(2,6,23,.90)),
+      url("assetsbg-tech.jpg.jpg") center/cover no-repeat fixed;
+  }
+
+  .wrap{max-width:1200px;margin:auto;padding:24px 16px;}
+
+  /* ===== Header (sans cadre autour, 1 seul cadre sous le titre) ===== */
+  .headerBlock{margin: 6px 0 14px;}
+  .headerTop{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .kicker{
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(226,232,240,.78);
+    font-weight:800;
+  }
+  .headerTitle{
+    margin:6px 0 6px;
+    font-size:28px;
+    line-height:1.08;
+    font-weight:900;
+    letter-spacing:-.7px;
+    background: linear-gradient(90deg, #e2e8f0, rgba(226,232,240,.72));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  }
+  .headerCard{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 18px 45px rgba(0,0,0,.40),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 -10px 30px rgba(0,0,0,.18);
+    color:rgba(148,163,184,.95);
+    font-size:13px;
+    font-weight:650;
+  }
+
+  /* Badge mode */
+  .modeBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    background: rgba(2,6,23,.35);
+    border:1px solid rgba(148,163,184,.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .modeDot{
+    width:8px;height:8px;border-radius:50%;
+    background:#38bdf8;
+    box-shadow:0 0 10px rgba(56,189,248,.55);
+  }
+  .modeText{font-size:13px;color:rgba(226,232,240,.95);}
+  .modeText small{font-weight:750;color:rgba(148,163,184,.95);}
+
+  .muted{color:var(--muted-color);font-size:14px;}
+
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+
+  #globalStatus{
+    font-weight:700;
+    padding:14px 14px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    flex:1;
+    min-width:260px;
+    backdrop-filter: blur(10px);
+  }
+
+  .btn{
+    appearance:none;
+    border:1px solid rgba(148,163,184,.35);
+    background:rgba(30,41,59,.65);
+    color:var(--text-color);
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:900;
+    cursor:pointer;
+    transition:transform .08s ease, border-color .15s ease, background .15s ease;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(10px);
+  }
+  .btn:hover{border-color:rgba(148,163,184,.55); background:rgba(30,41,59,.85);}
+  .btn:active{transform:translateY(1px);}
+  .btn small{
+    display:block;
+    color:var(--muted-color);
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  .err{
+    background:var(--danger-bg-muted);
+    border:1px solid var(--danger-color);
+    color:#fecaca;
+    padding:12px 16px;
+    border-radius:8px;
+    margin-top:16px;
+    font-size:14px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    word-break:break-word;
+  }
+  .err::before{content:'⚠️';font-size:18px;line-height:1.1;}
+
+  .siteBlock{margin-top:24px;}
+  .siteRow{
+    display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+    margin-top:18px;padding-bottom:8px;border-bottom:1px solid var(--card-border);
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:999px;padding:6px 14px;
+    background:var(--success-bg-muted);color:var(--success-color);
+    border:1px solid var(--success-color);
+    font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px;
+    backdrop-filter: blur(10px);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:16px;
+    margin-top:16px;
+  }
+
+  /* Carte + animation d’éclairage au survol (desktop) */
+  .card{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.25)), var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    box-shadow:0 4px 6px -1px rgba(0,0,0,.2);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:-40%;
+    background:
+      radial-gradient(circle at var(--mx, 30%) var(--my, 20%),
+        rgba(255,255,255,.18),
+        rgba(255,255,255,0) 55%);
+    opacity:0;
+    transform:translateZ(0);
+    transition:opacity .18s ease;
+    pointer-events:none;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 18px rgba(0,0,0,.28);
+      border-color:rgba(148,163,184,.32);
+    }
+    .card:hover::before{opacity:1;}
+  }
+  .card:active{transform:translateY(0px) scale(.995);}
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none;}
+    .card::before{transition:none;}
+  }
+
+  .month{font-weight:900;font-size:16px;margin-bottom:10px;}
+  .pctline{font-size:13px;color:var(--muted-color);margin-top:10px;font-weight:800;}
+
+  .barWrap{
+    height:12px;
+    background:rgba(239,68,68,.2);
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:12px;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.2);
+  }
+  .bar{height:100%;border-radius:999px;width:0;transition:width .8s ease-out;}
+
+  /* Donut (iOS/Safari friendly) */
+  .chart-svg{
+    display:block;
+    margin:0 auto;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+  }
+  .chart-circle-bg{fill:none;stroke:rgba(239,68,68,.25);stroke-width:12;}
+  .chart-circle-fg{
+    fill:none;
+    stroke-width:12;
+    stroke-linecap:round;
+    transition:stroke-dashoffset .8s ease-out;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.6));
+  }
+  .chart-text{font-size:24px;font-weight:900;text-anchor:middle;}
+
+  /* Mode lumineux/sombre selon taux */
+  .card.bright .chart-svg{
+    filter:
+      drop-shadow(0 10px 18px rgba(0,0,0,.35))
+      drop-shadow(0 0 18px rgba(16,185,129,.25));
+  }
+  .card.bright .bar{filter:saturate(1.25) brightness(1.05);}
+  .card.matte .chart-svg{filter: drop-shadow(0 5px 8px rgba(0,0,0,.45));}
+  .card.matte .chart-circle-fg{opacity:.82; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55));}
+  .card.matte .bar{filter:saturate(.9) brightness(.92); opacity:.9;}
+
+  /* ✅ on ne montre plus les textes de statut par site, sauf erreurs */
+  .siteStatus{display:none;}
+  .siteStatus.hasError{display:block;}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="headerBlock">
+    <div class="headerTop">
+      <div>
+        <div class="kicker">Pharmacie VSF · EHPAD</div>
+        <div class="headerTitle">Tableau de bord des facturations ✨</div>
+      </div>
+
+      <div class="modeBadge" aria-live="polite">
+        <span class="modeDot"></span>
+        <span class="modeText">Mode : <small id="modeLabel">M-3→M+1</small></span>
+      </div>
+    </div>
+
+    <div class="headerCard">
+      Suivi mensuel · Clic sur un camembert pour ouvrir la feuille correspondante
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div id="globalStatus">Chargement…</div>
+    <button id="toggleViewBtn" class="btn" type="button">
+      <span id="toggleViewText">Voir tous les mois</span>
+      <small id="toggleViewHint">Affiche toutes les colonnes (sans filtre)</small>
+    </button>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Nogent</span>
+    </div>
+    <div id="statusNogent" class="siteStatus muted"></div>
+    <div id="gridNogent" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Pontpoint</span>
+    </div>
+    <div id="statusPontpoint" class="siteStatus muted"></div>
+    <div id="gridPontpoint" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Chamant</span>
+    </div>
+    <div id="statusChamant" class="siteStatus muted"></div>
+    <div id="gridChamant" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>La Forêt</span>
+    </div>
+    <div id="statusLaforet" class="siteStatus muted"></div>
+    <div id="gridLaforet" class="grid"></div>
+  </div>
+
+  <div class="siteBlock">
+    <div class="siteRow">
+      <span class="pill"><span class="dot"></span>Monchy</span>
+    </div>
+    <div id="statusMonchy" class="siteStatus muted"></div>
+    <div id="gridMonchy" class="grid"></div>
+  </div>
+
+</div>
+
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbworFCiwn7kdqF-eoDbwxMvYVwLUunVAjhy7NYZtwnA2plfTbAJD8AB8MeQoVHY4Wfq/exec";
 
@@ -6,12 +354,11 @@
     return `https://docs.google.com/spreadsheets/d/${sheetId}/edit?gid=${encodeURIComponent(g)}#gid=${encodeURIComponent(g)}`;
   }
 
-  // ====== CONFIG SITES ======
   const NOGENT = {
     name: "Nogent",
     sheetId: "1eeRp1V9upw967UPEPyf8qJiSa4dwC0ULLoFuojl7nyc",
     gid: "0",
-    startCol: 14, labelRow: 1, valueRow: 4, dateRow: 3,
+    startCol: 14, labelRow: 1, valueRow: 4,
     statusEl: document.getElementById("statusNogent"),
     gridEl: document.getElementById("gridNogent"),
     callback: "handleNogent"
@@ -21,7 +368,7 @@
     name: "Pontpoint",
     sheetId: "1GR19n7z3cx5oj9HTY18IqvmT0J7AHT4OUMhItX-xhbo",
     gid: "0",
-    startCol: 14, labelRow: 1, valueRow: 4, dateRow: 3,
+    startCol: 14, labelRow: 1, valueRow: 4,
     statusEl: document.getElementById("statusPontpoint"),
     gridEl: document.getElementById("gridPontpoint"),
     callback: "handlePontpoint"
@@ -31,7 +378,7 @@
     name: "Chamant",
     sheetId: "1pDLA7POdZA3EOUE-Mpp7hDGlDS3ALszI6RL11G9TA5k",
     gid: "626296930",
-    startCol: 14, labelRow: 1, valueRow: 4, dateRow: 3,
+    startCol: 14, labelRow: 1, valueRow: 4,
     statusEl: document.getElementById("statusChamant"),
     gridEl: document.getElementById("gridChamant"),
     callback: "handleChamant"
@@ -41,7 +388,7 @@
     name: "La Forêt",
     sheetId: "1WqBZ2xacW0g41ZDlj64xEd4a5eoY5x0YgmV-xXPEDvI",
     gid: "0",
-    startCol: 14, labelRow: 1, valueRow: 4, dateRow: 3,
+    startCol: 14, labelRow: 1, valueRow: 4,
     statusEl: document.getElementById("statusLaforet"),
     gridEl: document.getElementById("gridLaforet"),
     callback: "handleLaforet"
@@ -51,10 +398,9 @@
     name: "Monchy",
     sheetId: "1PBOLxDkW16bDy3EsVdjn1nuN8KRfKlBEHieRA1XnllA",
     gid: "0",
-    startCol: 14,
-    labelRow: 1,
-    valueRow: 0,
-    dateRow: 3,
+    startCol: 14,  // O
+    labelRow: 1,   // ligne 2 (mois)
+    valueRow: 0,   // ligne 1 (%)
     statusEl: document.getElementById("statusMonchy"),
     gridEl: document.getElementById("gridMonchy"),
     callback: "handleMonchy"
@@ -63,7 +409,6 @@
   const SITES = [NOGENT, PONTPOINT, CHAMANT, LAFORET, MONCHY];
   for (const site of SITES) site.gidUrl = makeGidUrl(site.sheetId, site.gid);
 
-  // ====== UI ======
   const globalStatus = document.getElementById("globalStatus");
   const toggleBtn = document.getElementById("toggleViewBtn");
   const toggleText = document.getElementById("toggleViewText");
@@ -73,38 +418,12 @@
   let SHOW_ALL_MONTHS = false;
   const LAST_PAYLOAD = new Map();
 
-  // ====== HELPERS ======
   function clamp01(x){
     x = Number(x);
     if (!isFinite(x)) return 0;
     return Math.max(0, Math.min(1, x));
   }
   function pct(x){ return Math.round(clamp01(x)*100); }
-
-  function formatDateFR(x){
-    if (x === null || x === undefined || x === "") return "";
-    let d;
-
-    if (typeof x === "string") {
-      // déjà en dd/mm/yyyy
-      const m = x.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
-      if (m) return `${m[1]}/${m[2]}/${m[3]}`;
-
-      // YYYY-MM-DD
-      const m2 = x.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})$/);
-      if (m2) return `${m2[3]}/${m2[2]}/${m2[1]}`;
-
-      d = new Date(x);
-    } else {
-      d = new Date(x);
-    }
-
-    if (isNaN(d.getTime())) return String(x);
-    const dd = String(d.getDate()).padStart(2,"0");
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-  }
 
   function normalizeMonthLabel(label) {
     const l = String(label || "").toLowerCase();
@@ -120,11 +439,11 @@
       }
     }
 
-    let mm = l.match(/(\d{1,2})[\/\-](20\d{2})/);
-    if (mm) return new Date(parseInt(mm[2], 10), parseInt(mm[1], 10) - 1, 1);
+    let m = l.match(/(\d{1,2})[\/\-](20\d{2})/);
+    if (m) return new Date(parseInt(m[2], 10), parseInt(m[1], 10) - 1, 1);
 
-    mm = l.match(/(20\d{2})[\/\-](\d{1,2})/);
-    if (mm) return new Date(parseInt(mm[1], 10), parseInt(mm[2], 10) - 1, 1);
+    m = l.match(/(20\d{2})[\/\-](\d{1,2})/);
+    if (m) return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, 1);
 
     return null;
   }
@@ -155,25 +474,7 @@
     }, { passive:true });
   }
 
-  // ====== CSS: blink via injected keyframes (no need to edit <style>) ======
-  (function injectBlinkCSS(){
-    const css = `
-      @keyframes billBlink {
-        0%, 100% { color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,.45); }
-        50% { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,.45); }
-      }
-      .billDate.blink {
-        animation: billBlink 2s infinite ease-in-out;
-        font-weight: 900;
-      }
-    `;
-    const st = document.createElement("style");
-    st.textContent = css;
-    document.head.appendChild(st);
-  })();
-
-  // ====== RENDER ======
-  function renderMonthCard(gridEl, label, value, site, billDate){
+  function renderMonthCard(gridEl, label, value, site){
     const v = clamp01(value);
     const p = pct(v);
 
@@ -181,9 +482,6 @@
     if (p >= 90) { textColor = "var(--success-color)"; c1="#34d399"; c2="#059669"; }
     else if (p >= 75) { textColor = "var(--warning-color)"; c1="#fbbf24"; c2="#d97706"; }
     else { textColor = "var(--danger-color)"; c1="#f87171"; c2="#dc2626"; }
-
-    const billDateFR = formatDateFR(billDate);
-    const shouldBlink = p < 60;
 
     const size = 120;
     const strokeWidth = 12;
@@ -263,10 +561,7 @@
       </svg>
 
       <div class="pctline" style="color:${textColor}">
-        Facturation :
-        <span class="billDate ${shouldBlink ? "blink" : ""}">
-          ${billDateFR || "—"}
-        </span>
+        ${p}% OK · <span style="color:#ef4444;font-weight:900;">${100-p}% restant</span>
       </div>
 
       <div class="barWrap">
@@ -289,14 +584,12 @@
     });
   }
 
-  // ====== ERRORS ======
   function setSiteError(site, msg){
     site.statusEl.classList.add("hasError");
     site.statusEl.style.display = "block";
     site.statusEl.innerHTML = `<div class="err">${site.name} : ${msg}</div>`;
   }
 
-  // ====== LOAD ======
   function loadSite(site){
     site.statusEl.innerHTML = "";
     site.statusEl.classList.remove("hasError");
@@ -306,7 +599,6 @@
       + `&startCol=${encodeURIComponent(site.startCol)}`
       + `&labelRow=${encodeURIComponent(site.labelRow)}`
       + `&valueRow=${encodeURIComponent(site.valueRow)}`
-      + `&dateRow=${encodeURIComponent(site.dateRow)}`
       + `&callback=${encodeURIComponent(site.callback)}&_=${Date.now()}`;
 
     const s = document.createElement("script");
@@ -321,7 +613,6 @@
     document.head.appendChild(s);
   }
 
-  // ====== PAYLOAD -> RENDER ======
   function renderFromPayload(site, payload){
     if(!payload || !payload.ok){
       const msg = payload && payload.error ? payload.error : "erreur de lecture";
@@ -329,9 +620,6 @@
       site.gridEl.innerHTML = "";
       return;
     }
-
-    // IMPORTANT : on n'affiche plus aucune "méta" type "Départ O · Titres ligne 2 · Valeurs ligne 5"
-    // Même si la WebApp renvoie payload.meta, on l'ignore ici.
 
     const raw = payload.items || [];
     const items = raw.filter(it => isMonthInWindow(it.label));
@@ -343,10 +631,9 @@
     }
 
     site.gridEl.innerHTML = "";
-    items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value, site, it.billDate));
+    items.forEach(it => renderMonthCard(site.gridEl, it.label, it.value, site));
   }
 
-  // ====== TOP STATUS ======
   function updateGlobalStatus(){
     const mode = SHOW_ALL_MONTHS ? "Tous les mois" : "M-3→M+1";
     globalStatus.innerHTML = `🚀 Chargé · <span class="muted">Clic sur un mois pour ouvrir la feuille</span>`;
@@ -372,20 +659,17 @@
     updateToggleButton();
   }
 
-  // ====== JSONP CALLBACKS ======
   window.handleNogent = (payload) => { LAST_PAYLOAD.set("Nogent", payload); renderFromPayload(NOGENT, payload); };
   window.handlePontpoint = (payload) => { LAST_PAYLOAD.set("Pontpoint", payload); renderFromPayload(PONTPOINT, payload); };
   window.handleChamant = (payload) => { LAST_PAYLOAD.set("Chamant", payload); renderFromPayload(CHAMANT, payload); };
   window.handleLaforet = (payload) => { LAST_PAYLOAD.set("La Forêt", payload); renderFromPayload(LAFORET, payload); };
   window.handleMonchy = (payload) => { LAST_PAYLOAD.set("Monchy", payload); renderFromPayload(MONCHY, payload); };
 
-  // ====== EVENTS ======
   toggleBtn.addEventListener("click", () => {
     SHOW_ALL_MONTHS = !SHOW_ALL_MONTHS;
     rerenderAll();
   });
 
-  // ====== INIT ======
   globalStatus.textContent = "⏳ Initialisation et chargement…";
   updateToggleButton();
   updateGlobalStatus();
@@ -398,3 +682,5 @@
 
   setTimeout(updateGlobalStatus, 900);
 </script>
+</body>
+</html>
