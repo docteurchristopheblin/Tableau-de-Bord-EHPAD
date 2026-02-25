@@ -81,6 +81,14 @@
     font-weight:650;
   }
 
+  .rightBadges{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
   .modeBadge{
     display:inline-flex;
     align-items:center;
@@ -101,6 +109,33 @@
   }
   .modeText{font-size:13px;color:rgba(226,232,240,.95);}
   .modeText small{font-weight:750;color:rgba(148,163,184,.95);}
+
+  /* 🕒 Badge dernière mise à jour */
+  .updateBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    background: rgba(2,6,23,.35);
+    border:1px solid rgba(148,163,184,.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .updateBadge .clockDot{
+    width:8px;height:8px;border-radius:50%;
+    background:#e2e8f0;
+    box-shadow:0 0 10px rgba(226,232,240,.35);
+    opacity:.9;
+  }
+  .updateBadge .updateText{
+    font-size:13px;color:rgba(226,232,240,.95);
+  }
+  .updateBadge .updateText small{
+    font-weight:750;color:rgba(148,163,184,.95);
+  }
 
   .muted{color:var(--muted-color);font-size:14px;}
 
@@ -146,6 +181,42 @@
     font-weight:700;
     margin-top:2px;
   }
+
+  .btnGroup{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  /* 🧠 Indicateur état (à jour / retard / en cours) */
+  .healthPill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border-radius:999px;
+    padding:10px 12px;
+    background: rgba(2,6,23,.35);
+    border:1px solid rgba(148,163,184,.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .healthDot{
+    width:9px;height:9px;border-radius:50%;
+    background: var(--muted-color);
+    box-shadow: 0 0 10px rgba(148,163,184,.35);
+  }
+  .healthText{font-size:13px;color:rgba(226,232,240,.95);}
+  .healthText small{font-weight:750;color:rgba(148,163,184,.95);}
+
+  .healthPill.ok{border-color:rgba(16,185,129,.55);}
+  .healthPill.ok .healthDot{background:var(--success-color); box-shadow:0 0 10px rgba(16,185,129,.45);}
+  .healthPill.warn{border-color:rgba(245,158,11,.55);}
+  .healthPill.warn .healthDot{background:var(--warning-color); box-shadow:0 0 10px rgba(245,158,11,.45);}
+  .healthPill.bad{border-color:rgba(239,68,68,.55);}
+  .healthPill.bad .healthDot{background:var(--danger-color); box-shadow:0 0 10px rgba(239,68,68,.45);}
 
   .err{
     background:var(--danger-bg-muted);
@@ -266,22 +337,20 @@
   .siteStatus{display:none;}
   .siteStatus.hasError{display:block;}
 
- /* ⚪🔴 clignotement blanc ↔ rouge du mois si < 60% */
-@keyframes monthBlink {
-  0%, 100% { 
-    color: #ffffff; 
-    text-shadow: 0 0 10px rgba(255,255,255,.45); 
+  /* ⚪🔴 clignotement blanc ↔ rouge du mois si < 60% */
+  @keyframes monthBlink {
+    0%, 100% {
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255,255,255,.45);
+    }
+    50% {
+      color: #ef4444;
+      text-shadow: 0 0 10px rgba(239,68,68,.55);
+    }
   }
-  50% { 
-    color: #ef4444; 
-    text-shadow: 0 0 10px rgba(239,68,68,.55); 
+  .month.blink {
+    animation: monthBlink 2s infinite ease-in-out;
   }
-}
-.month.blink {
-  animation: monthBlink 2s infinite ease-in-out;
-}
-  
-  
 </style>
 </head>
 
@@ -295,9 +364,17 @@
         <div class="headerTitle">Tableau de bord des facturations ✨</div>
       </div>
 
-      <div class="modeBadge" aria-live="polite">
-        <span class="modeDot"></span>
-        <span class="modeText">Mode : <small id="modeLabel">M-3→M+1</small></span>
+      <div class="rightBadges">
+        <div class="modeBadge" aria-live="polite">
+          <span class="modeDot"></span>
+          <span class="modeText">Mode : <small id="modeLabel">M-3→M+1</small></span>
+        </div>
+
+        <!-- 🕒 Dernière mise à jour -->
+        <div class="updateBadge" aria-live="polite" title="Horodatage de la dernière mise à jour complète">
+          <span class="clockDot"></span>
+          <span class="updateText">Dernière mise à jour : <small id="lastUpdate">—</small></span>
+        </div>
       </div>
     </div>
 
@@ -308,10 +385,25 @@
 
   <div class="topbar">
     <div id="globalStatus">Chargement…</div>
-    <button id="toggleViewBtn" class="btn" type="button">
-      <span id="toggleViewText">Voir tous les mois</span>
-      <small id="toggleViewHint">Affiche toutes les colonnes (sans filtre)</small>
-    </button>
+
+    <div class="btnGroup">
+      <!-- 🧠 Indicateur état -->
+      <div id="healthPill" class="healthPill" aria-live="polite" title="État des données (à jour / en cours / retard)">
+        <span class="healthDot"></span>
+        <span class="healthText"><span id="healthLabel">Initialisation</span> <small id="healthDetail">—</small></span>
+      </div>
+
+      <!-- 🔄 Forcer l’actualisation -->
+      <button id="refreshBtn" class="btn" type="button">
+        🔄 Forcer l’actualisation
+        <small>Relance la lecture Google Sheets</small>
+      </button>
+
+      <button id="toggleViewBtn" class="btn" type="button">
+        <span id="toggleViewText">Voir tous les mois</span>
+        <small id="toggleViewHint">Affiche toutes les colonnes (sans filtre)</small>
+      </button>
+    </div>
   </div>
 
   <div class="siteBlock">
@@ -425,15 +517,102 @@
   const toggleHint = document.getElementById("toggleViewHint");
   const modeLabel = document.getElementById("modeLabel");
 
+  const refreshBtn = document.getElementById("refreshBtn");
+  const lastUpdateEl = document.getElementById("lastUpdate");
+
+  const healthPill = document.getElementById("healthPill");
+  const healthLabel = document.getElementById("healthLabel");
+  const healthDetail = document.getElementById("healthDetail");
+
   let SHOW_ALL_MONTHS = false;
   const LAST_PAYLOAD = new Map();
 
+  // 🧠 Suivi “à jour / retard WebApp”
+  const SITE_STATE = new Map(); // name -> { lastOkAt:number|null, lastStartAt:number|null, lastDurationMs:number|null, lastErrorAt:number|null }
+  for (const s of SITES){
+    SITE_STATE.set(s.name, { lastOkAt:null, lastStartAt:null, lastDurationMs:null, lastErrorAt:null });
+  }
+
+  function pad2(n){ return String(n).padStart(2, "0"); }
+  function fmtTime(d){
+    return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
   function clamp01(x){
     x = Number(x);
     if (!isFinite(x)) return 0;
     return Math.max(0, Math.min(1, x));
   }
   function pct(x){ return Math.round(clamp01(x)*100); }
+
+  function setHealth(state, label, detail){
+    healthPill.classList.remove("ok","warn","bad");
+    if (state) healthPill.classList.add(state);
+    healthLabel.textContent = label;
+    healthDetail.textContent = detail || "—";
+  }
+
+  function computeOverallFreshness(){
+    const now = Date.now();
+    const oks = [];
+    let pending = 0;
+    let anyNever = 0;
+    let anyRecentError = 0;
+
+    for (const s of SITES){
+      const st = SITE_STATE.get(s.name);
+      if (!st.lastOkAt) anyNever++;
+      else oks.push(st.lastOkAt);
+
+      // pending = start sans ok récent (dans fenêtre 30s)
+      if (st.lastStartAt && (!st.lastOkAt || st.lastOkAt < st.lastStartAt) && (now - st.lastStartAt) < 30000){
+        pending++;
+      }
+
+      if (st.lastErrorAt && (now - st.lastErrorAt) < 10 * 60 * 1000){
+        anyRecentError++;
+      }
+    }
+
+    if (pending > 0){
+      setHealth("warn", "Mise à jour en cours", `${pending} source(s) en chargement`);
+      return;
+    }
+
+    if (anyNever > 0){
+      setHealth("warn", "Initialisation", `${anyNever} source(s) sans données`);
+      return;
+    }
+
+    const oldestOk = Math.min(...oks);
+    const ageMs = now - oldestOk;
+    const ageMin = Math.max(0, Math.round(ageMs / 60000));
+
+    if (anyRecentError > 0){
+      setHealth("bad", "Retard / erreurs", `${anyRecentError} source(s) en erreur récente · Âge ${ageMin} min`);
+      return;
+    }
+
+    // Seuils : <= 6 min => OK ; 7–15 min => warning ; > 15 min => bad
+    if (ageMs <= 6 * 60 * 1000){
+      setHealth("ok", "Données à jour", `Âge ${ageMin} min`);
+    } else if (ageMs <= 15 * 60 * 1000){
+      setHealth("warn", "Léger retard", `Âge ${ageMin} min`);
+    } else {
+      setHealth("bad", "Retard", `Âge ${ageMin} min`);
+    }
+  }
+
+  function updateLastUpdateBadgeIfComplete(){
+    // “complète” = toutes les sources ont un lastOkAt
+    const times = [];
+    for (const s of SITES){
+      const st = SITE_STATE.get(s.name);
+      if (!st.lastOkAt) return;
+      times.push(st.lastOkAt);
+    }
+    const newest = Math.max(...times);
+    lastUpdateEl.textContent = fmtTime(new Date(newest));
+  }
 
   function normalizeMonthLabel(label) {
     const l = String(label || "").toLowerCase();
@@ -597,15 +776,26 @@
   }
 
   function setSiteError(site, msg){
+    const st = SITE_STATE.get(site.name);
+    st.lastErrorAt = Date.now();
+
     site.statusEl.classList.add("hasError");
     site.statusEl.style.display = "block";
     site.statusEl.innerHTML = `<div class="err">${site.name} : ${msg}</div>`;
+
+    computeOverallFreshness();
   }
 
   function loadSite(site){
+    const st = SITE_STATE.get(site.name);
+    st.lastStartAt = Date.now();
+
     site.statusEl.innerHTML = "";
     site.statusEl.classList.remove("hasError");
     site.gridEl.innerHTML = "";
+
+    // Indique “en cours”
+    computeOverallFreshness();
 
     const src = `${WEBAPP_URL}?sheetId=${encodeURIComponent(site.sheetId)}&gid=${encodeURIComponent(site.gid)}`
       + `&startCol=${encodeURIComponent(site.startCol)}`
@@ -619,7 +809,10 @@
     s.onerror = () => setSiteError(site, "chargement WebApp impossible");
 
     setTimeout(() => {
-      if (!LAST_PAYLOAD.get(site.name)) setSiteError(site, "aucun retour de la WebApp");
+      // si on n'a pas reçu un payload plus récent que le start
+      const st2 = SITE_STATE.get(site.name);
+      const okAfterStart = st2.lastOkAt && st2.lastStartAt && st2.lastOkAt >= st2.lastStartAt;
+      if (!okAfterStart) setSiteError(site, "aucun retour de la WebApp");
     }, 7000);
 
     document.head.appendChild(s);
@@ -671,27 +864,101 @@
     updateToggleButton();
   }
 
-  window.handleNogent = (payload) => { LAST_PAYLOAD.set("Nogent", payload); renderFromPayload(NOGENT, payload); };
-  window.handlePontpoint = (payload) => { LAST_PAYLOAD.set("Pontpoint", payload); renderFromPayload(PONTPOINT, payload); };
-  window.handleChamant = (payload) => { LAST_PAYLOAD.set("Chamant", payload); renderFromPayload(CHAMANT, payload); };
-  window.handleLaforet = (payload) => { LAST_PAYLOAD.set("La Forêt", payload); renderFromPayload(LAFORET, payload); };
-  window.handleMonchy = (payload) => { LAST_PAYLOAD.set("Monchy", payload); renderFromPayload(MONCHY, payload); };
+  // 🔄 Rafraîchissement global
+  function refreshAllSites(){
+    globalStatus.innerHTML = "🔄 Mise à jour automatique en cours…";
+    for (const s of SITES) loadSite(s);
+  }
 
+  // Callbacks JSONP
+  window.handleNogent = (payload) => {
+    const st = SITE_STATE.get("Nogent");
+    st.lastOkAt = Date.now();
+    st.lastDurationMs = st.lastStartAt ? (st.lastOkAt - st.lastStartAt) : null;
+
+    LAST_PAYLOAD.set("Nogent", payload);
+    renderFromPayload(NOGENT, payload);
+
+    updateLastUpdateBadgeIfComplete();
+    computeOverallFreshness();
+  };
+
+  window.handlePontpoint = (payload) => {
+    const st = SITE_STATE.get("Pontpoint");
+    st.lastOkAt = Date.now();
+    st.lastDurationMs = st.lastStartAt ? (st.lastOkAt - st.lastStartAt) : null;
+
+    LAST_PAYLOAD.set("Pontpoint", payload);
+    renderFromPayload(PONTPOINT, payload);
+
+    updateLastUpdateBadgeIfComplete();
+    computeOverallFreshness();
+  };
+
+  window.handleChamant = (payload) => {
+    const st = SITE_STATE.get("Chamant");
+    st.lastOkAt = Date.now();
+    st.lastDurationMs = st.lastStartAt ? (st.lastOkAt - st.lastStartAt) : null;
+
+    LAST_PAYLOAD.set("Chamant", payload);
+    renderFromPayload(CHAMANT, payload);
+
+    updateLastUpdateBadgeIfComplete();
+    computeOverallFreshness();
+  };
+
+  window.handleLaforet = (payload) => {
+    const st = SITE_STATE.get("La Forêt");
+    st.lastOkAt = Date.now();
+    st.lastDurationMs = st.lastStartAt ? (st.lastOkAt - st.lastStartAt) : null;
+
+    LAST_PAYLOAD.set("La Forêt", payload);
+    renderFromPayload(LAFORET, payload);
+
+    updateLastUpdateBadgeIfComplete();
+    computeOverallFreshness();
+  };
+
+  window.handleMonchy = (payload) => {
+    const st = SITE_STATE.get("Monchy");
+    st.lastOkAt = Date.now();
+    st.lastDurationMs = st.lastStartAt ? (st.lastOkAt - st.lastStartAt) : null;
+
+    LAST_PAYLOAD.set("Monchy", payload);
+    renderFromPayload(MONCHY, payload);
+
+    updateLastUpdateBadgeIfComplete();
+    computeOverallFreshness();
+  };
+
+  // Boutons
   toggleBtn.addEventListener("click", () => {
     SHOW_ALL_MONTHS = !SHOW_ALL_MONTHS;
     rerenderAll();
   });
 
+  refreshBtn.addEventListener("click", () => {
+    refreshAllSites();
+  });
+
+  // Init UI
   globalStatus.textContent = "⏳ Initialisation et chargement…";
   updateToggleButton();
   updateGlobalStatus();
+  setHealth("warn", "Initialisation", "chargement des sources…");
 
-  loadSite(NOGENT);
-  loadSite(PONTPOINT);
-  loadSite(CHAMANT);
-  loadSite(LAFORET);
-  loadSite(MONCHY);
+  // 1er chargement
+  refreshAllSites();
 
+  // ✅ Mise à jour automatique toutes les 5 minutes
+  setInterval(refreshAllSites, 5 * 60 * 1000);
+
+  // ✅ Rechargement quand on revient sur l’onglet (utile iOS / Safari)
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshAllSites();
+  });
+
+  // rafraîchit le status global après un court délai
   setTimeout(updateGlobalStatus, 900);
 </script>
 </body>
